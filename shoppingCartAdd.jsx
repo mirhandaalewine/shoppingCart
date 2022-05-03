@@ -3,28 +3,31 @@
 // use React.useState to keep track of items in the Cart.
 // use React.useState to keep track of Stock items
 // list out the Cart items in another column
-function NavBar({ stockitems }) {
-  const [cart, setCart] = React.useState([]);
-  const [stock, setStock] = React.useState(stockitems);
+function NavBar({ menuitems }) {
   const { Card, Button } = ReactBootstrap;
-  // event apple:2
-  const moveToCart = e => {
-    let [name, num] = e.target.innerHTML.split(":"); // innerHTML should be format name:3
-    // use newStock = stock.map to find "name" and decrease number in stock by 1
-    // only if instock is >=  do we move item to Cart and update stock
-    if (num <=0) return;
+  const [stock, setStock] = React.useState(menuitems);
+  const [cart, setCart] = React.useState([]);
+  const moveToCart = (e) => {
+    let [name, num] = e.target.innerHTML.split(":");
+    if (num <= 0) return; // zero items in stock
     // get item with name from stock and update stock
     let item = stock.filter((item) => item.name == name);
-    let newStock = stock.map((item, index) => {
-      if (item.name == name) item.instock--;
+    // check if its in stock ie item.instock > 0
+    let newStock = stock.map((item) => {
+      if (item.name == name) {
+        item.instock--;
+      }
       return item;
     });
+    // now filter out stock items == 0;
+
     setStock([...newStock]);
-    setCart([...cart, ...item]);
+    setCart([...cart, ...item]); // for now don't worry about repeat items in Cart
+    console.log(`Cart: ${JSON.stringify(cart)}`);
   };
   const updatedList = menuitems.map((item, index) => {
     return (
-      <Button onClick={moveToCart} key={index}>
+      <Button key={index} onClick={moveToCart}>
         {item.name}:{item.instock}
       </Button>
     );
@@ -32,13 +35,14 @@ function NavBar({ stockitems }) {
   // note that React needs to have a single Parent
   return (
     <>
-      <ul style={{ listStyleType: "none" }}>{updatedList}</ul>
+      <ul key="stock" style={{ listStyleType: "none" }}>
+        {updatedList}
+      </ul>
       <h1>Shopping Cart</h1>
-      <Cart cartitems={cart}>Cart Items</Cart>
+      <Cart cartitems={cart}> Cart Items</Cart>
     </>
   );
 }
-
 function Cart({ cartitems }) {
   const { Card, Button } = ReactBootstrap;
   console.log("rendering Cart");
@@ -57,9 +61,9 @@ const menuItems = [
   { name: "pineapple", instock: 3 },
   { name: "pear", instock: 0 },
   { name: "peach", instock: 3 },
-  { name: "orange", instock: 1 }
+  { name: "orange", instock: 1 },
 ];
 ReactDOM.render(
-  <NavBar stockitems={menuItems} />,
+  <NavBar menuitems={menuItems} />,
   document.getElementById("root")
 );
